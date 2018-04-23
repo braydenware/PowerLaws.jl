@@ -41,7 +41,7 @@ entropy(d::con_powerlaw) = ((α, θ) = params(d); log(θ / (α-1)) + 1.0 / (α-1
 
 #### Evaluation
 
-function pdf(d::con_powerlaw, x::Float64)
+function pdf(d::con_powerlaw, x::T) where T<:Real
     (α, θ) = params(d)
     x >= θ ? ((α-1.0)/θ) * ((x/θ)^(-α)) : 0.0
 end
@@ -49,14 +49,14 @@ end
 function pdf(d::con_powerlaw, x::AbstractArray)
     (α, θ) = params(d)
     cons = ((α-1.0)/θ)
-    pdfs = Array{Float64}(0)
-    for num in x
-        push!(pdfs,(num >= θ ? cons * ((x/θ)^(-α)) : 0.0))
+    pdfs = Array{Float64}(length(x))
+    for (indx, num) in enumerate(x)
+        pdfs[indx] = (num >= θ ? cons * ((x/θ)^(-α)) : 0.0)
     end
     return pdfs
 end
 
-function logpdf(d::con_powerlaw, x::Float64)
+function logpdf(d::con_powerlaw, x::T) where T<:Real
     (α, θ) = params(d)
     x >= θ ? log(α-1.0) - log(θ) - α * log(x/θ) : -Inf
 end
@@ -64,24 +64,24 @@ end
 function logpdf(d::con_powerlaw, x::AbstractArray)
     (α, θ) = params(d)
     l_const = log(α-1.0) - log(θ)
-    lpdfs = Array{Float64}(0)
-    for num in x
-        push!(lpdfs,(num >= θ ? l_const - α * log(num/θ) : -Inf))
+    lpdfs = Array{Float64}(length(x))
+    for (indx, num) in enumerate(x)
+        lpdfs[indx] = (num >= θ ? l_const - α * log(num/θ) : -Inf)
     end
     return lpdfs
 end
 
 
-function ccdf(d::con_powerlaw, x::Float64)
+function ccdf(d::con_powerlaw, x::T) where T<:Real
     (α, θ) = params(d)
     x >= θ ? (x/θ)^(-α +1.0) : 1.0
 end
 
-cdf(d::con_powerlaw, x::Float64) = 1.0 - ccdf(d, x)
+cdf(d::con_powerlaw, x::T) where T<:Real = 1.0 - ccdf(d, x)
 
-logccdf(d::con_powerlaw, x::Float64) = log(ccfd(d,x))
+logccdf(d::con_powerlaw, x::T) where T<:Real = log(ccfd(d,x))
 
-logcdf(d::con_powerlaw, x::Float64) = log(cdf(d, x))
+logcdf(d::con_powerlaw, x::T) where T<:Real = log(cdf(d, x))
 
 cquantile(d::con_powerlaw, p::Float64) = d.θ *((p) ^ (-1.0 / (d.α - 1.0)))
 quantile(d::con_powerlaw, p::Float64) = cquantile(d, 1.0 - p)

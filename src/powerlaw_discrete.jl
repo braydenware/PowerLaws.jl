@@ -19,7 +19,7 @@ params(d::dis_powerlaw) = (d.α, d.θ)
 
 #### Evaluation
 
-function pdf(d::dis_powerlaw, x::Float64)
+function pdf(d::dis_powerlaw, x::Int)
     (α, θ) = params(d)
     x >= θ ?  x ^ (-α) / zeta(α, θ) : 0.0
 end
@@ -27,28 +27,29 @@ end
 function pdf(d::dis_powerlaw, x::AbstractArray)
     (α, θ) = params(d)
     z = zeta(α, θ)
-    pdfs = Array{Float64}(0)
-    for num in x
-    push!(pdfs,(num >= θ ?  num ^ (-α) / z : 0.0))
+    pdfs = Array{Float64}(length(x))
+    for (indx, val) in enumerate(x)
+        pdfs[indx] = (val >= θ ?  val ^ (-α) / z : 0.0)
     end
     return pdfs
 end
 
-function logpdf(d::dis_powerlaw, x::Float64)
+function logpdf(d::dis_powerlaw, x::Int)
     (α, θ) = params(d)
     x >= θ ? -log(zeta(α, θ)) - α * log(x) : -Inf
 end
+
 function logpdf(d::dis_powerlaw, x::AbstractArray)
   (α, θ) = params(d)
   log_zeta = -log(zeta(α, θ))
-  lpdfs = Array{Float64}(0)
-  for num in x
-    push!(lpdfs,(num >= θ ? log_zeta - α * log(num) : -Inf))
+  lpdfs = Array{Float64}(length(x))
+  for (indx, val) in enumerate(x)
+    lpdfs[indx] = (val >= θ ? log_zeta - α * log(val) : -Inf)
   end
   return lpdfs
 end
 
-function ccdf(d::dis_powerlaw, x::Float64)
+function ccdf(d::dis_powerlaw, x::Int)
     (α, θ) = params(d)
     x >= θ ? zeta(α, x) / zeta(α, θ) : 1.0
 end
@@ -56,20 +57,20 @@ end
 function ccdf(d::dis_powerlaw, x::AbstractArray)
     (α, θ) = params(d)
     z = zeta(α, θ)
-    ccdfs = Array{Float64}(0)
-    for num in x
-      push!(ccdfs,(num >= θ ? zeta(α, num) / z : 1.0))
+    ccdfs = Array{Float64}(length(x))
+    for (indx, val) in enumerate(x)
+      ccdfs[indx] = (val >= θ ? zeta(α, val) / z : 1.0)
     end
     return ccdfs
 end
 
-cdf(d::dis_powerlaw, x::Float64) = 1.0 - ccdf(d, x)
+cdf(d::dis_powerlaw, x::Int) = 1.0 - ccdf(d, x)
 cdf(d::dis_powerlaw, x::AbstractArray) = 1.0 - ccdf(d, x)
 
-logccdf(d::dis_powerlaw, x::Float64) = log(ccfd(d,x))
+logccdf(d::dis_powerlaw, x::Int) = log(ccfd(d,x))
 logccdf(d::dis_powerlaw, x::AbstractArray) = log(ccfd(d,x))
 
-logcdf(d::dis_powerlaw, x::Float64) = log(cdf(d, x))
+logcdf(d::dis_powerlaw, x::Int) = log(cdf(d, x))
 logcdf(d::dis_powerlaw, x::AbstractArray) = log(cdf(d, x))
 
 cquantile(d::dis_powerlaw, p::Float64) = (d.θ -0.5) *((p) ^ (-1.0 / (d.α - 1.0))) + 0.5

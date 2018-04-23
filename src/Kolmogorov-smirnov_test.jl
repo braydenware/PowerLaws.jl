@@ -6,7 +6,7 @@ function Kolmogorov_smirnov_test(dat::AbstractArray,d::ContinuousUnivariateDistr
     data = data[min_indx:max_indx]
 
     act_cdf = collect(0:length(data)-1) / n
-    thr_cdf = cdf(d,float(data))
+    thr_cdf = cdf.(d,float(data))
     D = maximum(abs.(act_cdf-thr_cdf))
     return D
 end
