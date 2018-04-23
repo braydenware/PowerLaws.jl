@@ -1,9 +1,9 @@
-immutable dis_powerlaw <: DiscreteUnivariateDistribution
+struct dis_powerlaw <: DiscreteUnivariateDistribution
     α::Float64
     θ::Float64
 
     function dis_powerlaw(α::Real, θ::Real)
-        @check_args(dis_powerlaw, α > zero(α) && θ > zero(θ))
+        (α > zero(α) && θ > zero(θ)) || throw(ArgumentError("parameter conditions not satisfied"))
         new(α, θ)
     end
     dis_powerlaw(α::Real) = dis_powerlaw(α, 1.0)
@@ -25,13 +25,13 @@ function pdf(d::dis_powerlaw, x::Float64)
 end
 
 function pdf(d::dis_powerlaw, x::AbstractArray)
-  (α, θ) = params(d)
-  z = zeta(α, θ)
-  pdfs = Array(Float64,0)
-  for num in x
+    (α, θ) = params(d)
+    z = zeta(α, θ)
+    pdfs = Array{Float64}(0)
+    for num in x
     push!(pdfs,(num >= θ ?  num ^ (-α) / z : 0.0))
-  end
-  return pdfs
+    end
+    return pdfs
 end
 
 function logpdf(d::dis_powerlaw, x::Float64)
@@ -41,7 +41,7 @@ end
 function logpdf(d::dis_powerlaw, x::AbstractArray)
   (α, θ) = params(d)
   log_zeta = -log(zeta(α, θ))
-  lpdfs = Array(Float64,0)
+  lpdfs = Array{Float64}(0)
   for num in x
     push!(lpdfs,(num >= θ ? log_zeta - α * log(num) : -Inf))
   end
@@ -56,7 +56,7 @@ end
 function ccdf(d::dis_powerlaw, x::AbstractArray)
     (α, θ) = params(d)
     z = zeta(α, θ)
-    ccdfs = Array(Float64,0)
+    ccdfs = Array{Float64}(0)
     for num in x
       push!(ccdfs,(num >= θ ? zeta(α, num) / z : 1.0))
     end

@@ -1,10 +1,10 @@
-immutable con_powerlaw <: ContinuousUnivariateDistribution
+struct con_powerlaw <: ContinuousUnivariateDistribution
     α::Float64
     θ::Float64
 
     function con_powerlaw(α::Real, θ::Real)
-        @check_args(con_powerlaw, α > zero(α) && θ > zero(θ))
-        new(α, θ)
+        (α > zero(α) && θ > zero(θ)) || throw(ArgumentError("parameter conditions not satisfied"))
+                new(α, θ)
     end
     con_powerlaw(α::Real) = con_powerlaw(α, 1.0)
     con_powerlaw() = new(1.0, 1.0)
@@ -49,7 +49,7 @@ end
 function pdf(d::con_powerlaw, x::AbstractArray)
     (α, θ) = params(d)
     cons = ((α-1.0)/θ)
-    pdfs = Array(Float64,0)
+    pdfs = Array{Float64}(0)
     for num in x
         push!(pdfs,(num >= θ ? cons * ((x/θ)^(-α)) : 0.0))
     end
@@ -64,7 +64,7 @@ end
 function logpdf(d::con_powerlaw, x::AbstractArray)
     (α, θ) = params(d)
     l_const = log(α-1.0) - log(θ)
-    lpdfs = Array(Float64,0)
+    lpdfs = Array{Float64}(0)
     for num in x
         push!(lpdfs,(num >= θ ? l_const - α * log(num/θ) : -Inf))
     end
